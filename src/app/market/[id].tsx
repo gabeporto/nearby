@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react"
-import { Alert, View, Modal, StatusBar, ScrollView } from "react-native"
+import { View, Alert, Modal, StatusBar, ScrollView } from "react-native"
 import { router, useLocalSearchParams, Redirect } from "expo-router"
 import { useCameraPermissions, CameraView } from "expo-camera"
 
@@ -16,14 +16,13 @@ type DataProps = PropsDetails & {
 }
 
 export default function Market() {
-
     const [data, setData] = useState<DataProps>()
     const [coupon, setCoupon] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [couponIsFetching, setCouponIsFetching] = useState(false)
     const [isVisibleCameraModal, setIsVisibleCameraModal] = useState(false)
 
-    const [permission, requestPermission] = useCameraPermissions()
+    const [_, requestPermission] = useCameraPermissions()
     const params = useLocalSearchParams<{ id: string }>()
 
     const qrLock = useRef(false)
@@ -36,7 +35,10 @@ export default function Market() {
         } catch (error) {
             console.log(error)
             Alert.alert("Erro", "Não foi possível carregar os dados", [
-                { text: "OK", onPress: () => router.back() }
+                {
+                    text: "OK",
+                    onPress: () => router.back(),
+                },
             ])
         }
     }
@@ -53,7 +55,7 @@ export default function Market() {
             setIsVisibleCameraModal(true)
         } catch (error) {
             console.log(error)
-            return Alert.alert("Câmera", "Não foi possível utlizar a câmera")
+            Alert.alert("Câmera", "Não foi possível utilizar a câmera")
         }
     }
 
@@ -76,10 +78,14 @@ export default function Market() {
     function handleUseCoupon(id: string) {
         setIsVisibleCameraModal(false)
 
-        Alert.alert("Cupom", "Não é possível reutilizar um cupom resgatado. Deseja realmente resgatar o cupom?", [
-            { style: "cancel", text: "Não" },
-            { text: "Sim", onPress: () => getCoupon(id) },
-        ])
+        Alert.alert(
+            "Cupom",
+            "Não é possível reutilizar um cupom resgatado. Deseja realmente resgatar o cupom?",
+            [
+                { style: "cancel", text: "Não" },
+                { text: "Sim", onPress: () => getCoupon(id) },
+            ]
+        )
     }
 
     useEffect(() => {
@@ -96,7 +102,7 @@ export default function Market() {
 
     return (
         <View style={{ flex: 1 }}>
-            <StatusBar hidden={isVisibleCameraModal} />
+            <StatusBar barStyle="light-content" hidden={isVisibleCameraModal} />
 
             <ScrollView showsVerticalScrollIndicator={false}>
                 <Cover uri={data.cover} />
@@ -117,9 +123,7 @@ export default function Market() {
                     onBarcodeScanned={({ data }) => {
                         if (data && !qrLock.current) {
                             qrLock.current = true
-                            setTimeout(() => {
-                                handleUseCoupon(data)
-                            }, 500)
+                            setTimeout(() => handleUseCoupon(data), 500)
                         }
                     }}
                 />
@@ -128,7 +132,7 @@ export default function Market() {
                     <Button
                         onPress={() => setIsVisibleCameraModal(false)}
                         isLoading={couponIsFetching}
-                    >R
+                    >
                         <Button.Title>Voltar</Button.Title>
                     </Button>
                 </View>
